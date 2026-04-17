@@ -1,12 +1,13 @@
+require('dotenv').config()
+
 const express = require('express')
 const bcrypt = require('bcrypt')
 const { PrismaClient } = require('@prisma/client')
 const { PrismaPg } = require('@prisma/adapter-pg')
 const helmet = require('helmet')
+const ratelimit = require('express-rate-limit')
 
 app.use(helmet())
-
-require('dotenv').config()
 const app = express()
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL })
@@ -14,7 +15,14 @@ const prisma = new PrismaClient({ adapter })
 
 app.use(express.json())
 
-app.post('/register', async (req, res) => {
+const limiter = ratelimit({
+    windowMs: 10 * 60 * 1000,
+    limit: 5,
+    statusCode: 429,
+    message: "429 Too many requests."
+})
+
+app.post('/register', limiter, async (req, res) => {
     const { email, username, password } = req.body
 
     if (!email || !username || !password) {
@@ -45,16 +53,6 @@ app.post('/register', async (req, res) => {
         const existingEmail = await prisma.user.findUnique({
             where: { email }
         })
-
-        const existingUser = await prisma.user.findUnique({
-            where: { username }
-        })
-
-        if (existingUser) {
-            return res.status(400).json({
-                error: "User already exists."
-            })
-        }
 
         if (existingEmail) {
             return res.status(400).json({
@@ -93,6 +91,7 @@ app.post('/register', async (req, res) => {
     }
 })
 
-app.listen(process.env.PORT || 3000, () => {
-    console.log("Server is running...")
+app.use(limiter)
+app.listen(process.env.PORT, () => {
+    console.log(`Server is running on http://localhost:${process.env.PORT}`)
 })
