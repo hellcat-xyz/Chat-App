@@ -2,6 +2,9 @@ const express = require('express')
 const bcrypt = require('bcrypt')
 const { PrismaClient } = require('@prisma/client')
 const { PrismaPg } = require('@prisma/adapter-pg')
+const helmet = require('helmet')
+
+app.use(helmet())
 
 require('dotenv').config()
 const app = express()
