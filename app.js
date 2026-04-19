@@ -1,5 +1,6 @@
 const express = require('express');
 const helmet = require('helmet')
+console.clear()
 const app = express();
 app.use(helmet())
 app.use(express.json());

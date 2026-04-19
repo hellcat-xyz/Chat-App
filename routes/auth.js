@@ -6,6 +6,8 @@ const { PrismaClient } = require('@prisma/client')
 const { PrismaPg } = require('@prisma/adapter-pg')
 const ratelimit = require('express-rate-limit')
 const jwt = require('jsonwebtoken')
+const redisStore = require('rate-limit-redis').default
+const redis = require('../config/redis')
 
 const app = express()
 const router = express.Router()
@@ -15,10 +17,14 @@ const prisma = new PrismaClient({ adapter })
 app.use(express.json())
 
 const limiter = ratelimit({
-    windowMs: 10 * 60 * 1000,
+    windowMs: 1 * 60 * 1000,
     limit: 5,
     statusCode: 429,
-    message: "429 Too many requests."
+    message: "429 Too many requests.",
+
+    store: new redisStore({
+        sendCommand: (...args) => redis.call(...args),
+    })
 })
 
 // POST - Register endpoint
