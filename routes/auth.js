@@ -8,6 +8,9 @@ const ratelimit = require('express-rate-limit')
 const jwt = require('jsonwebtoken')
 const redisStore = require('rate-limit-redis').default
 const redis = require('../config/redis')
+const authMiddleware = require('../middleware/authMiddleware')
+const authHandler = require('../middleware/authMiddleware')
+
 
 const app = express()
 const router = express.Router()
@@ -149,6 +152,27 @@ router.post('/login', limiter, async (req, res) => {
         console.log(err)
         return res.status(500).json({
             error: "An error occured."
+        })
+    }
+})
+
+// DELETE - delete user endpint
+
+router.delete('/delete', authMiddleware, async (req, res) => {
+
+    try {
+        const successDelete = await prisma.user.delete({
+            where: {
+                email: req.user.email
+            }
+        })
+        res.status(200).json({
+            message: "User deleted successfully."
+        })
+    }
+    catch (err) {
+        res.status(404).json({
+            error: "User not found."
         })
     }
 })

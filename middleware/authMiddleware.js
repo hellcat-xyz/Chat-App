@@ -7,7 +7,7 @@ app.use(express.json())
 const authHandler = (req, res, next) => {
     const authHeader = req.headers.authorization
     if (!authHeader) {
-        res.status(401).json({
+        return res.status(401).json({
             error: "No token provided."
         })
     }
@@ -20,7 +20,7 @@ const authHandler = (req, res, next) => {
         next()
 
     } catch (err) {
-        res.status(401).json({
+        return res.status(401).json({
             error: "Invalid token"
         })
     }
