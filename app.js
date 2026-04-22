@@ -10,6 +10,8 @@ const authRouter = require('./routes/auth')
 const userRouter = require('./routes/profile')
 const mainRouter = require('./routes/index')
 
+
+
 app.use('/', mainRouter)
 app.use('/auth', authRouter)
 app.use('/user', userRouter)
