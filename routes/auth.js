@@ -33,7 +33,7 @@ const limiter = ratelimit({
 // POST - Register endpoint
 
 router.post('/register', limiter, async (req, res) => {
-    const { email, username, password } = req.body
+    const { email, username, password, confirmPass } = req.body
 
     if (!email || !username || !password) {
         return res.status(400).send("All fields are mandatory.")
@@ -50,6 +50,12 @@ router.post('/register', limiter, async (req, res) => {
         if (password.length > 16) {
             return res.status(400).json({
                 error: "Password should not be greater than 16 digits"
+            })
+        }
+
+        if(confirmPass !== password) {
+            return res.json({
+                error: "Passwords don't match."
             })
         }
 
