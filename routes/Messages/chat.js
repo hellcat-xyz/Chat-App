@@ -51,4 +51,34 @@ router.post('/', authMiddleware, limiter, async (req, res) => {
     }
 })
 
+router.get('/', authMiddleware, async (req, res) => {
+    try {
+        const messageList = await prisma.chat.findMany({
+            where: {
+                users: {
+                    some: {
+                        id: req.user.id
+                    }
+                }
+            },
+            include: {
+                users: {
+                    select: {
+                        id: true,
+                        username: true
+                    }
+                },
+                messages: {
+                    take: 1,
+                    orderBy: { datentime: 'desc' }
+                }
+            }
+        })
+        res.status(200).json({ messageList })
+    }
+    catch (err) {
+        console.log(err)
+    }
+})
+
 module.exports = router
