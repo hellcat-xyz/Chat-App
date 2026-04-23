@@ -6,12 +6,26 @@ const { PrismaClient } = require('@prisma/client')
 const { PrismaPg } = require('@prisma/adapter-pg')
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL })
 const prisma = new PrismaClient({ adapter })
+const ratelimit = require('express-rate-limit')
+const redis = require('../config/redis')
+const { RedisStore } = require('rate-limit-redis')
+
+const limiter = ratelimit({
+    windowMs: 10 * 60 * 1000,
+    limit: 10,
+    statusCode: 429,
+    message: "429 Too many requests",
+
+    store: new RedisStore({
+        sendCommand: (...args) => redis.call(...args)
+    })
+})
 
 const router = express.Router()
 
 app.use(express.json())
 
-router.post('/', authMiddleware, async (req, res) => {
+router.post('/', authMiddleware, limiter, async (req, res) => {
     const { userId } = req.body
     try {
         const chat = await prisma.chat.create({
