@@ -18,12 +18,12 @@ router.get('/:chatId', authMiddleware, async (req, res) => {
                 datentime: "asc"
             }
         })
-        res.json({
+        res.status(200).json({
             message: getMessage
         })
     } catch (err) {
         console.log(err)
-        res.json({
+        return res.status(500).json({
             error: "Server error."
         })
     }

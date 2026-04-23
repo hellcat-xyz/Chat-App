@@ -12,7 +12,7 @@ router.post('/', authMiddleware, async (req, res) => {
     const { chatId, content } = req.body
 
     if (!chatId || !content) {
-        return res.json({
+        return res.status(400).json({
             error: "Both chatId and content is required."
         })
     }
@@ -25,14 +25,14 @@ router.post('/', authMiddleware, async (req, res) => {
                 userId: req.user.userId
             }
         })
-        res.json({
+        res.status(200).json({
             message: "Message sent successfully.",
             data:message
         })
     }
     catch(err) {
         console.log(err)
-        res.status(500).json({
+        return res.status(500).json({
             error:"Server error."
         })
     }

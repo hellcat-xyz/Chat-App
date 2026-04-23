@@ -25,7 +25,7 @@ router.post('/', authMiddleware, async (req, res) => {
             }
         })
 
-        res.json({
+        res.status(200).json({
             message: "chat created",
             chat
         })
