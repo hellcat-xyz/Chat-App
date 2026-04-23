@@ -1,13 +1,13 @@
 require('dotenv').config()
 const express = require('express')
-const authMiddleware = require('../middleware/authMiddleware')
+const authMiddleware = require('../../middleware/authMiddleware')
 const app = express()
 const { PrismaClient } = require('@prisma/client')
 const { PrismaPg } = require('@prisma/adapter-pg')
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL })
 const prisma = new PrismaClient({ adapter })
 const ratelimit = require('express-rate-limit')
-const redis = require('../config/redis')
+const redis = require('../../config/redis')
 const { RedisStore } = require('rate-limit-redis')
 
 const limiter = ratelimit({

@@ -7,9 +7,9 @@ const { PrismaPg } = require('@prisma/adapter-pg')
 const ratelimit = require('express-rate-limit')
 const jwt = require('jsonwebtoken')
 const redisStore = require('rate-limit-redis').default
-const redis = require('../config/redis')
-const authMiddleware = require('../middleware/authMiddleware')
-const authHandler = require('../middleware/authMiddleware')
+const redis = require('../../config/redis')
+const authMiddleware = require('../../middleware/authMiddleware')
+const authHandler = require('../../middleware/authMiddleware')
 
 
 const app = express()

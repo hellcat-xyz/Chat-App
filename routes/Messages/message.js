@@ -6,9 +6,9 @@ const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL })
 const prisma = new PrismaClient({ adapter })
 const app = express()
 const router = express.Router()
-const authMiddleware = require('../middleware/authMiddleware')
+const authMiddleware = require('../../middleware/authMiddleware')
 const ratelimit = require('express-rate-limit')
-const redis = require('../config/redis')
+const redis = require('../../config/redis')
 const { RedisStore } = require('rate-limit-redis')
 
 const limiter = ratelimit({
@@ -45,6 +45,27 @@ router.post('/', authMiddleware, limiter, async (req, res) => {
         })
     }
     catch (err) {
+        console.log(err)
+        return res.status(500).json({
+            error: "Server error."
+        })
+    }
+})
+
+router.get('/:chatId', authMiddleware, async (req, res) => {
+    const { chatId } = req.params
+    try {
+        const getMessage = await prisma.message.findMany({
+            where: { chatId: chatId },
+            orderBy: {
+                datentime: "asc"
+            }
+        })
+        res.status(200).json({
+            message: getMessage
+        })
+        
+    } catch (err) {
         console.log(err)
         return res.status(500).json({
             error: "Server error."
