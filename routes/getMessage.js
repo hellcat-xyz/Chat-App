@@ -21,6 +21,7 @@ router.get('/:chatId', authMiddleware, async (req, res) => {
         res.status(200).json({
             message: getMessage
         })
+        
     } catch (err) {
         console.log(err)
         return res.status(500).json({
