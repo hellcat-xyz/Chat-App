@@ -80,8 +80,7 @@ router.get('/', authMiddleware, async (req, res) => {
             message: chat.messages[0] || null,
             users: chat.users[0]
         }))
-        res.status(200).json({ messageList })
-        console.log(formattedOutput)
+        res.status(200).json({ formattedOutput })
     }
     catch (err) {
         console.log(err)
