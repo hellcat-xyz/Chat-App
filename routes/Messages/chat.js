@@ -74,7 +74,14 @@ router.get('/', authMiddleware, async (req, res) => {
                 }
             }
         })
+
+        const formattedOutput = messageList.map(chat => ({
+            id: chat.id,
+            message: chat.messages[0] || null,
+            users: chat.users[0]
+        }))
         res.status(200).json({ messageList })
+        console.log(formattedOutput)
     }
     catch (err) {
         console.log(err)
