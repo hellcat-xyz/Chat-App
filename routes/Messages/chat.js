@@ -28,21 +28,52 @@ app.use(express.json())
 router.post('/', authMiddleware, limiter, async (req, res) => {
     const { userId } = req.body
     try {
-        const chat = await prisma.chat.create({
-            data: {
-                users: {
-                    connect: {
-                        id: req.user.userId,
-                        id: userId
+
+        const existingChat = await prisma.chat.findFirst({
+            where: {
+                AND: [
+                    {
+                        users: {
+                            some: { id: req.user.id }
+                        }
+                    },
+                    {
+                        users: {
+                            some: { id: userId }
+                        }
                     }
-                }
+                ]
             }
         })
 
-        res.status(200).json({
-            message: "chat created",
-            chat
-        })
+        if(userId === req.user.id) {
+            return res.json({
+                error : "You can't message with yourself"
+            })
+        }
+
+        if (existingChat) {
+            return res.json({
+                message: "Chat already exists.",
+                chat: existingChat
+            })
+        } else {
+
+            const chat = await prisma.chat.create({
+                data: {
+                    users: {
+                        connect: {
+                            id: req.user.id,
+                            id: userId
+                        }
+                    }
+                }
+            })
+            res.status(200).json({
+                message: "chat created",
+                chat
+            })
+        }
     } catch (err) {
         console.log(err)
         return res.status(500).json({
@@ -75,11 +106,17 @@ router.get('/', authMiddleware, async (req, res) => {
             }
         })
 
-        const formattedOutput = messageList.map(chat => ({
-            id: chat.id,
-            message: chat.messages[0] || null,
-            users: chat.users[0]
-        }))
+        const formattedOutput = messageList.map(chat => {
+            const otherUser = chat.users.find(
+                u => u.id !== req.user.id
+            )
+
+            return {
+                chatId: chat.id,
+                otherUser,
+                lastMessage: chat.messages[0]?.content || null
+            }
+        })
         res.status(200).json({ formattedOutput })
     }
     catch (err) {
