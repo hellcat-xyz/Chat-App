@@ -7,9 +7,9 @@ import Auth from './components/Auth.jsx';
 import ChatClient from "./client/chatClient.js";
 import { Chat } from "./context/Chat.jsx";
 
-const client = new ChatClient("http://localhost:5000");
-const authToken = false;
-// need auth token
+const client = new ChatClient("http://localhost:3000");
+const cookies = new Cookies();
+const authToken = cookies.get('token');
 
 const App = () => {
   if(!authToken) return <Auth />

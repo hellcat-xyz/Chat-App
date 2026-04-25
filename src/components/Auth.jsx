@@ -24,29 +24,42 @@ const Auth = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
   }
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const { fullName, username, email, password } = form;
-    const URL = 'http://localhost:5000/auth';
-    const { data: { token, userId, hashedPassword } } = await axios.post(`${URL}/${isSignup ? 'signup' : 'login'}`, {
-      fullName,
-      username,
-      email,
-      password,
-    });
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  const { username, email, password } = form;
+  const URL = 'http://localhost:3000';
+
+  const endpoint = isSignup ? 'register' : 'login';
+
+  const requestBody = isSignup
+    ? {
+        email,
+        username,
+        password,
+        confirmPass: form.confirmPassword,
+      }
+    : {
+        email,
+        password,
+      };
+
+  try {
+    const { data } = await axios.post(`${URL}/${endpoint}`, requestBody);
+
+    const token = data.token;
 
     cookies.set('token', token);
     cookies.set('username', username);
-    cookies.set('fullName', fullName);
-    cookies.set('userId', userId);
     cookies.set('email', email);
 
-    if(isSignup) {
-      cookies.set('hashedPassword', hashedPassword);
-    }
-
     window.location.reload();
+
+  } catch (error) {
+    console.log(error.response?.data || error.message);
+    alert(error.response?.data?.error || "Something went wrong");
   }
+};
 
   return (
     <div className='auth__form-container'>
@@ -54,7 +67,7 @@ const Auth = () => {
         <div className='auth__form-container_fields-content'> 
           <p>{isSignup ? 'Sign Up' : 'Sign In' }</p>
           <form onSubmit={handleSubmit}>
-            {isSignup && (
+            {/* {isSignup && (
               <div className='auth__form-container_fields-content_input'>
               <label htmlFor="fullName">Full Name</label>
               <input name="fullName"
@@ -64,7 +77,7 @@ const Auth = () => {
               required
               />
               </div>
-            )}
+            )} */}
             <div className='auth__form-container_fields-content_input'>
               <label htmlFor="fullName">Username</label>
               <input name="username"
