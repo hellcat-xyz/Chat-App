@@ -5,15 +5,6 @@ const app = express();
 app.use(helmet())
 app.use(express.json());
 const http = require('http')
-const { Server } = require('socket.io')
-
-const server = http.createServer(app)
-
-const io = new Server(server, {
-  cors: {
-    origin: '*'
-  }
-})
 
 const authRouter = require('./routes/Authentication/auth')
 const userRouter = require('./routes/Users/profile')
@@ -27,13 +18,6 @@ app.use('/user', userRouter)
 app.use('/chat', chatRouter)
 app.use('/message', messageRouter)
 
-io.on('connection', (socket) => {
-  console.log("User connected:", socket.id)
-
-  socket.on('disconnect', () => {
-    console.log("User disconnected:", socket.id)
-  })
-})
 
 app.listen(3000, () => {
   console.log("Server is running...")
