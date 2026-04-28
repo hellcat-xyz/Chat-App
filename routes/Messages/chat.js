@@ -11,7 +11,7 @@ const redis = require('../../config/redis')
 const { RedisStore } = require('rate-limit-redis')
 
 const limiter = ratelimit({
-    windowMs: 10 * 60 * 1000,
+    windowMs: 1 * 60 * 1000,
     limit: 10,
     statusCode: 429,
     message: "429 Too many requests",
