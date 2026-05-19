@@ -11,7 +11,6 @@ const redis = require('../../config/redis')
 const authMiddleware = require('../../middleware/authMiddleware')
 const authHandler = require('../../middleware/authMiddleware')
 
-
 const app = express()
 const router = express.Router()
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL })
