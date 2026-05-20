@@ -48,7 +48,7 @@ router.post('/', authMiddleware, limiter, async (req, res) => {
 
         if(userId === req.user.id) {
             return res.json({
-                error : "You can't message with yourself"
+                error : "You cannot message yourself."
             })
         }
 
@@ -70,7 +70,7 @@ router.post('/', authMiddleware, limiter, async (req, res) => {
                 }
             })
             res.status(200).json({
-                message: "chat created",
+                message: "Chat created",
                 chat
             })
         }
