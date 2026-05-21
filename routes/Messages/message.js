@@ -16,7 +16,6 @@ const limiter = ratelimit({
     limit: 10,
     statusCode: 429,
     message: "429 Too many requests",
-
     store: new RedisStore({
         sendCommand: (...args) => redis.call(...args)
     })

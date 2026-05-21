@@ -5,8 +5,8 @@ const redis = new Redis({
     port: "6379",
     password: undefined,
     db: 0,
-    connectionTimeout: 10000,
-    maxRetriesPerRequest:5,
+    connectionTimeout: 20000,
+    maxRetriesPerRequest:10,
     
     retryLogic(times) {
         const timer = Math.min(times * 50, 2000)
@@ -15,16 +15,16 @@ const redis = new Redis({
 }) 
 
 redis.on('connect', () => {
-    console.log("Redis connected.")
+    console.log("Redis server connected.")
 })
 redis.on('ready', () => {
-    console.log("Redis is ready")
+    console.log("Redis server is connnected and is ready.")
 })
 redis.on('end', () => {
     console.log("Redis connection terminated successfully.")
 })
 redis.on('reconnecting', () => {
-    console.log("Redis is reconnecting.")
+    console.log("Redis server is reconnecting.")
 })
 redis.on('error', (err) => {
     console.log(err)
