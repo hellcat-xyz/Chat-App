@@ -9,6 +9,8 @@ const prisma = new PrismaClient({ adapter })
 const ratelimit = require('express-rate-limit')
 const redis = require('../../config/redis')
 const { RedisStore } = require('rate-limit-redis')
+const router = express.Router()
+app.use(express.json())
 
 const limiter = ratelimit({
     windowMs: 1 * 60 * 1000,
@@ -20,10 +22,6 @@ const limiter = ratelimit({
         sendCommand: (...args) => redis.call(...args)
     })
 })
-
-const router = express.Router()
-
-app.use(express.json())
 
 router.post('/', authMiddleware, limiter, async (req, res) => {
     const { userId } = req.body
@@ -46,9 +44,9 @@ router.post('/', authMiddleware, limiter, async (req, res) => {
             }
         })
 
-        if(userId === req.user.id) {
+        if (userId === req.user.id) {
             return res.json({
-                error : "You cannot message yourself."
+                error: "You cannot message yourself."
             })
         }
 

@@ -15,10 +15,10 @@ const redis = new Redis({
 }) 
 
 redis.on('connect', () => {
-    console.log("Redis server connected.")
+    console.log("Redis server connected, checking if it's ready...")
 })
 redis.on('ready', () => {
-    console.log("Redis server is connnected and is ready.")
+    console.log("Redis server is ready to accept incoming connections and requests.")
 })
 redis.on('end', () => {
     console.log("Redis connection terminated successfully.")
