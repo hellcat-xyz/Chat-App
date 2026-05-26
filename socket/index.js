@@ -6,10 +6,9 @@ function ioConnection(io) {
 
         socket.on("ping", (data) => {
             socket.emit("pong", {
-                message: "pong response recieved from user."
+                message: "Pong"
             })
         })
-    })
-}
-
+    }
+)}
 module.exports = ioConnection

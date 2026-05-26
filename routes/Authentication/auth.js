@@ -34,7 +34,7 @@ const limiter = ratelimit({
 router.post('/register', limiter, async (req, res) => {
     const { email, username, password, confirmPass } = req.body
 
-    if (!email || !username || !password) {
+    if (!email || !username || !password || !confirmPass) {
         return res.status(400).send("All fields are mandatory.")
     }
 
@@ -171,12 +171,12 @@ router.delete('/delete', authMiddleware, async (req, res) => {
                 email: req.user.email
             }
         })
-        res.status(200).json({
+        return res.status(200).json({
             message: "User deleted successfully."
         })
     }
     catch (err) {
-        res.status(404).json({
+        return res.status(404).json({
             error: "User not found."
         })
     }

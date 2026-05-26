@@ -25,6 +25,13 @@ const limiter = ratelimit({
 
 router.post('/', authMiddleware, limiter, async (req, res) => {
     const { userId } = req.body
+
+    if (userId === req.user.id) {
+        return res.json({
+            error: "You cannot message yourself."
+        })
+    }
+    
     try {
 
         const existingChat = await prisma.chat.findFirst({
@@ -43,12 +50,6 @@ router.post('/', authMiddleware, limiter, async (req, res) => {
                 ]
             }
         })
-
-        if (userId === req.user.id) {
-            return res.json({
-                error: "You cannot message yourself."
-            })
-        }
 
         if (existingChat) {
             return res.json({
