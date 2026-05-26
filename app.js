@@ -13,8 +13,6 @@ const io = new Server(server, {
 app.use(helmet())
 app.use(express.json());
 
-const ioConnection = require("./socket/index")
-
 const authRouter = require('./routes/Authentication/auth')
 const userRouter = require('./routes/Users/profile')
 const mainRouter = require('./routes/index')
@@ -27,7 +25,14 @@ app.use('/user', userRouter)
 app.use('/chat', chatRouter)
 app.use('/message', messageRouter)
 
-ioConnection(io)
+io.on("connection", (socket) => {
+  console.log("New user connected : ", socket.id)
+
+  socket.on("disconnect", () => {
+    console.log("User disconnected : ", socket.id)
+  })
+})
+
 
 server.listen(3000, () => {
   console.log("Server is running...")
