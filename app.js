@@ -10,6 +10,9 @@ const io = new Server(server, {
     origin: "*"
   }
 })
+
+app.set("io", io)
+
 app.use(helmet())
 app.use(express.json());
 
@@ -26,10 +29,14 @@ app.use('/chat', chatRouter)
 app.use('/message', messageRouter)
 
 io.on("connection", (socket) => {
-  console.log("New user connected : ", socket.id)
+  console.log("User connected:", socket.id)
+  socket.on("join_chat", (chatId) => {
+    socket.join(chatId)
+    console.log(`Socket ${socket.id} joined ${chatId}`)
+  })
 
   socket.on("disconnect", () => {
-    console.log("User disconnected : ", socket.id)
+    console.log("Disconnected:", socket.id)
   })
 })
 

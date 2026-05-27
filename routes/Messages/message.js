@@ -38,6 +38,11 @@ router.post('/', authMiddleware, limiter, async (req, res) => {
                 userId: req.user.userId
             }
         })
+
+        const io = req.app.get("io")
+
+        io.to(chatId).emit("new_message", message)
+        
         res.status(200).json({
             message: "Message sent successfully.",
             data: message
