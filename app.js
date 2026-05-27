@@ -30,27 +30,8 @@ app.use('/message', messageRouter)
 
 io.on("connection", (socket) => {
   console.log("User connected:", socket.id)
-  socket.on("join_chat", async (chatId) => {
-
-    const chat = await prisma.chat.findFirst({
-      where: {
-        id: chatId,
-        users: {
-          some: {
-            id: socket.user.userId
-          }
-        }
-      }
-    })
-
-    if (!chat) {
-      return socket.emit("error", "Unauthorized")
-    }
-
+  socket.on("join_chat", (chatId) => {
     socket.join(chatId)
-
-    console.log("joined")
-  })
     console.log(`Socket ${socket.id} joined ${chatId}`)
   })
 
