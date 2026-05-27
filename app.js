@@ -25,6 +25,7 @@ const userRouter = require('./routes/Users/profile')
 const mainRouter = require('./routes/index')
 const chatRouter = require('./routes/Messages/chat')
 const messageRouter = require('./routes/Messages/message')
+const socketHandler = require('./socket/index')
 
 app.use('/', mainRouter)
 app.use('/auth', authRouter)
@@ -32,18 +33,7 @@ app.use('/user', userRouter)
 app.use('/chat', chatRouter)
 app.use('/message', messageRouter)
 
-io.on("connection", (socket) => {
-  console.log("User connected:", socket.id)
-  socket.on("join_chat", (chatId) => {
-    socket.join(chatId)
-    console.log(`Socket ${socket.id} joined ${chatId}`)
-  })
-
-  socket.on("disconnect", () => {
-    console.log("Disconnected:", socket.id)
-  })
-})
-
+socketHandler(io)
 
 server.listen(3000, () => {
   console.log("Server is running...")

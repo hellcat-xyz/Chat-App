@@ -6,40 +6,24 @@
 </head>
 
 <body>
-
 <h1>Realtime Chat Test</h1>
-
 <div id="messages"></div>
-
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
-
 <script>
 
-    console.log("script loaded")
-
     const socket = io("http://localhost:3000")
-
     socket.on("connect", () => {
         console.log("CONNECTED:", socket.id)
-
         socket.emit("join_chat", "7713a8f0-5c68-4b50-a386-fc7381a7a408")
     })
-
     socket.on("new_message", (message) => {
-
         console.log("MESSAGE RECEIVED:", message)
-
         const div = document.getElementById("messages")
-
         const p = document.createElement("p")
-
         p.innerText = message.content
-
         div.appendChild(p)
     })
 
 </script>
-
 </body>
-
 </html>

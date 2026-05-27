@@ -1,14 +1,15 @@
 function ioConnection(io) {
-    io.on('connection', (socket) => {
-        console.log("New user joined the chat.")
-        console.log(socket.id)
-
-
-        socket.on("ping", (data) => {
-            socket.emit("pong", {
-                message: "Pong"
-            })
+    io.on("connection", (socket) => {
+        console.log("User connected:", socket.id)
+        socket.on("join_chat", (chatId) => {
+            socket.join(chatId)
+            console.log(`Socket ${socket.id} joined ${chatId}`)
         })
-    }
-)}
+
+        socket.on("disconnect", () => {
+            console.log("Disconnected:", socket.id)
+        })
+    })
+
+}
 module.exports = ioConnection
