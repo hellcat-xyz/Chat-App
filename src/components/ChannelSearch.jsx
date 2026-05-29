@@ -1,43 +1,35 @@
-import React, {useState, useEffect} from 'react'
-import { SearchIcon } from '../assets/SearchIcon.jsx';
+import React, { useState } from "react";
+import { SearchIcon } from "../assets/SearchIcon.jsx";
+import { useChatContext } from "../context/chatContext.js";
 
 const ChannelSearch = () => {
-    const [ query, setQuery ] = useState('');
-    const [ loading, setLoading ] = useState(false);
-    const getChannels = async (text) => {
-        try {
-            // fetch channels
-        }
-        catch (error) {
-            setQuery('');
-        }
-    }
+  const [query, setQuery] = useState("");
+  const { createChat } = useChatContext();
 
-    const onSearch = (event) => {
-        event.preventDefault();
-        setLoading(true); // onclicking search button, it will show loading state
-        setQuery(event.target.value); // onclicking search button, it will set the query to the value of the input field
-        getChannels(event.target.value); // onclicking search button, it will fetch the channels based on the query
-    }
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    await createChat(query);
+    setQuery("");
+  };
+
   return (
-    <div className='channel-search__container'>
-        <div className='channel-search__input__wrapper'>
-            <div className='channel-search__input__icon'>
-                <SearchIcon/>
-            </div>
-            <div className='channel-search__input__text'>
-                <input
-                className='channel-search__input__text'
-                placeholder="Search conversations..."
-                type='text'
-                value={query}
-                onChange={onSearch}
-                />
-            </div>
+    <form className="channel-search__container" onSubmit={handleSubmit}>
+      <div className="channel-search__input__wrapper">
+        <div className="channel-search__input__icon">
+          <SearchIcon />
         </div>
-      
-    </div>
-  )
-}
+        <div className="channel-search__input__text">
+          <input
+            className="channel-search__input__text"
+            placeholder="Start chat by user ID"
+            type="text"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+          />
+        </div>
+      </div>
+    </form>
+  );
+};
 
-export default ChannelSearch
+export default ChannelSearch;

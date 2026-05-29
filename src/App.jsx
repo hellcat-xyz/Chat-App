@@ -1,26 +1,35 @@
-import React from 'react'
-import './App.css';
-import Cookies from 'universal-cookie';
-import ChannelListContainer from './components/ChannelListContainer.jsx'
-import ChannelContainer from './components/ChannelContainer.jsx'
-import Auth from './components/Auth.jsx';
+import React, { useMemo, useState } from "react";
+import "./App.css";
+import Cookies from "universal-cookie";
+import ChannelListContainer from "./components/ChannelListContainer.jsx";
+import ChannelContainer from "./components/ChannelContainer.jsx";
+import Auth from "./components/Auth.jsx";
 import ChatClient from "./client/chatClient.js";
 import { Chat } from "./context/Chat.jsx";
 
-const client = new ChatClient("http://localhost:3000");
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 const cookies = new Cookies();
-const authToken = cookies.get('token');
 
 const App = () => {
-  if(!authToken) return <Auth />
+  const [authToken, setAuthToken] = useState(() => cookies.get("token"));
+  const client = useMemo(() => new ChatClient(API_URL), []);
+
+  const handleLogout = () => {
+    cookies.remove("token");
+    cookies.remove("email");
+    setAuthToken(null);
+  };
+
+  if (!authToken) return <Auth onAuth={setAuthToken} />;
+
   return (
-    <div className='app__wrapper'>
-      <Chat client={client}>
+    <div className="app__wrapper">
+      <Chat client={client} token={authToken}>
         <ChannelListContainer />
-        <ChannelContainer />
+        <ChannelContainer onLogout={handleLogout} />
       </Chat>
     </div>
-  )
-}
+  );
+};
 
-export default App
+export default App;

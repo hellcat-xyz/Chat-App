@@ -1,32 +1,128 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import axios from "axios";
+import { ChatContext } from "./chatContext.js";
 
-const ChatContext = createContext();
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
-export const Chat = ({ client, children }) => {
-  const [messages, setMessages] = useState([]);
+export const Chat = ({ client, token, children }) => {
   const [user, setUser] = useState(null);
+  const [chats, setChats] = useState([]);
+  const [activeChat, setActiveChat] = useState(null);
+  const [messages, setMessages] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const api = useMemo(() => {
+    return axios.create({
+      baseURL: API_URL,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  }, [token]);
+
+  const loadProfile = useCallback(async () => {
+    const { data } = await api.get("/user/profile");
+    setUser(data.user);
+  }, [api]);
+
+  const loadChats = useCallback(async () => {
+    const { data } = await api.get("/chat");
+    setChats(data.formattedOutput || []);
+  }, [api]);
 
   useEffect(() => {
-    if (!client) return;
+    const loadInitialData = async () => {
+      setLoading(true);
+      setError("");
 
-    client.onMessage((msg) => {
-      setMessages((prev) => [...prev, msg]);
+      try {
+        await Promise.all([loadProfile(), loadChats()]);
+      } catch (err) {
+        setError(err.response?.data?.error || "Unable to load chat data.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadInitialData();
+  }, [loadChats, loadProfile]);
+
+  useEffect(() => {
+    return client.onMessage((message) => {
+      setMessages((prev) => {
+        if (prev.some((item) => item.id === message.id)) return prev;
+        return [...prev, message];
+      });
+      loadChats();
     });
-  }, [client]);
+  }, [client, loadChats]);
 
-  const sendMessage = (text) => {
-    const msg = { text, user };
-    client.sendMessage(msg);
-    setMessages((prev) => [...prev, msg]);
-  };
+  const selectChat = useCallback(
+    async (chat) => {
+      setActiveChat(chat);
+      setError("");
+      client.joinChat(chat.chatId);
+
+      try {
+        const { data } = await api.get(`/message/${chat.chatId}`);
+        setMessages(data.message || []);
+      } catch (err) {
+        setError(err.response?.data?.error || "Unable to load messages.");
+      }
+    },
+    [api, client],
+  );
+
+  const createChat = useCallback(
+    async (userId) => {
+      const trimmedUserId = userId.trim();
+      if (!trimmedUserId) return;
+
+      setError("");
+
+      try {
+        await api.post("/chat", { userId: trimmedUserId });
+        await loadChats();
+      } catch (err) {
+        setError(err.response?.data?.error || "Unable to create chat.");
+      }
+    },
+    [api, loadChats],
+  );
+
+  const sendMessage = useCallback(
+    async (content) => {
+      const trimmedContent = content.trim();
+      if (!activeChat || !trimmedContent) return;
+
+      setError("");
+
+      try {
+        const { data } = await api.post("/message", {
+          chatId: activeChat.chatId,
+          content: trimmedContent,
+        });
+        setMessages((prev) => [...prev, data.data]);
+        await loadChats();
+      } catch (err) {
+        setError(err.response?.data?.error || "Unable to send message.");
+      }
+    },
+    [activeChat, api, loadChats],
+  );
 
   return (
     <ChatContext.Provider
       value={{
-        client,
         user,
-        setUser,
+        chats,
+        activeChat,
         messages,
+        loading,
+        error,
+        createChat,
+        selectChat,
         sendMessage,
       }}
     >
@@ -34,5 +130,3 @@ export const Chat = ({ client, children }) => {
     </ChatContext.Provider>
   );
 };
-
-export const useChatContext = () => useContext(ChatContext);
